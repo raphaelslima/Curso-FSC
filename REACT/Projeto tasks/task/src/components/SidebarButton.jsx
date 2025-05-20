@@ -1,5 +1,3 @@
-import PropTypes from 'prop-types';
-
 const SidebarButton = ({ children, variant }) => {
   const getvariantClasses = () => {
     <SidebarButton variant="unselected">Início</SidebarButton>;
@@ -10,15 +8,13 @@ const SidebarButton = ({ children, variant }) => {
     }
   };
   return (
-    <a href="#" className={`px-6 py-3 ${getvariantClasses()}`}>
+    <a
+      href="#"
+      className={`flex items-center gap-2 rounded-lg px-6 py-3 ${getvariantClasses()}`}
+    >
       {children}
     </a>
   );
-};
-
-SidebarButton.propTypes = {
-  children: PropTypes.node,
-  variant: PropTypes.node,
 };
 
 export default SidebarButton;
