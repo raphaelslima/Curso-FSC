@@ -1,4 +1,4 @@
-import { CheckIcon, LoaderIcon, DetailsIcon, TrashIcon } from '../assets/icons';
+import { CheckIcon, LoaderIcon, DetailsIcon, IconTrash } from '../assets/icons';
 import Button from './Button';
 
 const TaskItem = ({ task, handleCheckboxClick, handleTaskDelete }) => {
@@ -38,7 +38,7 @@ const TaskItem = ({ task, handleCheckboxClick, handleTaskDelete }) => {
 
       <div className="flex items-center gap-2">
         <Button variant={'ghost'} onClick={() => handleTaskDelete(task.id)}>
-          <TrashIcon className={'text-[#9a9c9f]'} />
+          <IconTrash className={'text-[#9a9c9f]'} />
         </Button>
 
         <a href="#" className="hover:opacity-75">

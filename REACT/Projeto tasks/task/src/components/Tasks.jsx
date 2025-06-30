@@ -7,6 +7,7 @@ import {
   MoonIcon,
 } from '../assets/icons';
 import TasksSeparator from './TasksSeparator';
+import AddTaskDialog from './addTaskDialog';
 import { useState } from 'react';
 import data from '../constants/tasks';
 import TaskItem from './TaskItem';
@@ -14,6 +15,7 @@ import { toast } from 'sonner';
 
 const Tasks = () => {
   const [tasks, setTasks] = useState(data);
+  const [addTaskDialogisOpen, setaddTaskDialogisOpen] = useState(false);
 
   const morningTasks = tasks.filter((task) => task.time === 'morning');
   const afternonTasks = tasks.filter((task) => task.time === 'afternoon');
@@ -51,6 +53,16 @@ const Tasks = () => {
     setTasks(newTasks);
     toast.success('Tarefa deletada com sucesso!');
   };
+
+  const handleAddTaskDialogClose = () => {
+    setaddTaskDialogisOpen(false);
+  };
+
+  const handleAddNewTask = (newTask) => {
+    setTasks([...tasks, newTask]);
+    toast.success('Tarefa adIcionada com sucesso');
+  };
+
   return (
     <div className="w-full space-y-6 px-8 py-16">
       <div className="flex w-full justify-between">
@@ -62,9 +74,19 @@ const Tasks = () => {
         </div>
 
         <div className="flex items-center gap-3">
-          <Button variant={'primary'}>
+          <Button
+            variant={'primary'}
+            onClick={() => setaddTaskDialogisOpen(true)}
+          >
             Nova Tarefa <IconAdd />
           </Button>
+
+          <AddTaskDialog
+            isOpen={addTaskDialogisOpen}
+            handleClose={handleAddTaskDialogClose}
+            handleAddNewTask={handleAddNewTask}
+          />
+
           <Button variant={'secundary'}>
             Limpar Tarefas <IconTrash />
           </Button>

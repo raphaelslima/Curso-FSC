@@ -1,4 +1,4 @@
-const Button = ({ children, variant, ...rest }) => {
+const Button = ({ children, variant, size = 'small', className, ...rest }) => {
   const getVariantClasses = () => {
     if (variant === 'primary') {
       return 'bg-[#00Adb5] text-white';
@@ -7,9 +7,20 @@ const Button = ({ children, variant, ...rest }) => {
       return 'bg-transparent text-[#333333]';
     }
   };
+
+  const getSizeClasses = () => {
+    if (size === 'small') {
+      return 'py-1 text-xs';
+    }
+
+    if (size === 'large') {
+      return 'py-8 text-sm';
+    }
+  };
+
   return (
     <button
-      className={`flex items-center gap-2 rounded-md px-3 py-1 text-xs font-semibold transition hover:opacity-70 ${getVariantClasses()}`}
+      className={`flex items-center justify-center gap-2 rounded-md px-3 font-semibold transition hover:opacity-70 ${getVariantClasses()} ${getSizeClasses()} ${className}`}
       {...rest}
     >
       {children}
