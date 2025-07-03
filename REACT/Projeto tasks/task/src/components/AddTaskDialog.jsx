@@ -9,32 +9,60 @@ import { v4 } from 'uuid';
 
 const AddTaskDialog = ({ isOpen, handleClose, handleAddNewTask }) => {
   const nodeRef = useRef();
-  const [title, setTitle] = useState('');
-  const [time, setTime] = useState('morning');
-  const [description, setDescription] = useState('');
+  const titleRef = useRef();
+  const descriptionRef = useRef();
+  const timeRef = useRef();
+  const [errors, setErrors] = useState([]);
 
   useEffect(() => {
     if (!isOpen) {
-      setTitle('');
-      setTime('morning');
-      setDescription('');
     }
   }, [isOpen]);
 
   const handleSubmit = () => {
-    if (!time.trim() || !description.trim() || !time.trim()) {
-      return alert('Preencha todos os campos da tarefa.');
+    const newErrors = [];
+
+    if (!titleRef.current.value.trim()) {
+      newErrors.push({
+        inputName: 'title',
+        message: 'Esse campo é obritório.',
+      });
     }
+
+    if (!timeRef.current.value.trim()) {
+      newErrors.push({
+        inputName: 'time',
+        message: 'Esse campo é obritório.',
+      });
+    }
+
+    if (!descriptionRef.current.value.trim()) {
+      newErrors.push({
+        inputName: 'description',
+        message: 'Esse campo é obritório.',
+      });
+    }
+
+    setErrors(newErrors);
+    if (newErrors.length > 0) {
+      return;
+    }
+
     const newTask = {
       id: v4(),
-      title,
-      time,
-      description,
+      title: titleRef.current.value,
+      time: timeRef.current.value,
+      description: descriptionRef.current.value,
       status: 'not_started',
     };
     handleAddNewTask(newTask);
     handleClose();
   };
+  const errorTitle = errors.find((error) => error.inputName === 'title');
+  const errorTime = errors.find((error) => error.inputName === 'time');
+  const errorDescription = errors.find(
+    (error) => error.inputName === 'description'
+  );
   return (
     <CSSTransition
       nodeRef={nodeRef}
@@ -60,22 +88,20 @@ const AddTaskDialog = ({ isOpen, handleClose, handleAddNewTask }) => {
                   placeholder="Insira o título da tarefa"
                   label={'Título'}
                   id="title"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
+                  error={errorTitle}
+                  ref={titleRef}
                 />
 
-                <TimeSelect
-                  value={time}
-                  onChange={(e) => setTime(e.target.value)}
-                />
+                <TimeSelect error={errorTime} ref={timeRef} />
 
                 <Input
                   placeholder="Descreva a tarefa"
                   label={'Descrição'}
                   id="description"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
+                  ref={descriptionRef}
+                  error={errorDescription}
                 />
+
                 <div className="flex gap-3">
                   <Button
                     variant={'secundary'}
