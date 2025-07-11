@@ -7,15 +7,25 @@ import {
   MoonIcon,
 } from '../assets/icons';
 import TasksSeparator from './TasksSeparator';
-import AddTaskDialog from './addTaskDialog';
-import { useState } from 'react';
-import data from '../constants/tasks';
+import AddTaskDialog from './AddTaskDialog';
+import { useEffect, useState } from 'react';
 import TaskItem from './TaskItem';
 import { toast } from 'sonner';
 
 const Tasks = () => {
-  const [tasks, setTasks] = useState(data);
+  const [tasks, setTasks] = useState([]);
   const [addTaskDialogisOpen, setaddTaskDialogisOpen] = useState(false);
+
+  useEffect(() => {
+    const fetchTasks = async () => {
+      const response = await fetch('http://localhost:3000/tasks', {
+        method: 'GET',
+      });
+      const data = await response.json();
+      setTasks(data);
+    };
+    fetchTasks();
+  }, []);
 
   const morningTasks = tasks.filter((task) => task.time === 'morning');
   const afternonTasks = tasks.filter((task) => task.time === 'afternoon');
@@ -48,17 +58,25 @@ const Tasks = () => {
     setTasks(newTasks);
   };
 
-  const handleTaskDelete = (taskId) => {
+  const onDeleteSucess = async (taskId) => {
     const newTasks = tasks.filter((task) => task.id !== taskId);
     setTasks(newTasks);
-    toast.success('Tarefa deletada com sucesso!');
   };
 
   const handleAddTaskDialogClose = () => {
     setaddTaskDialogisOpen(false);
   };
 
-  const handleAddNewTask = (newTask) => {
+  const handleAddNewTask = async (newTask) => {
+    const response = await fetch('http://localhost:3000/tasks', {
+      method: 'POST',
+      body: JSON.stringify(newTask),
+    });
+
+    if (!response.ok) {
+      return toast.error('Erro ao adiconar tarefa! Por favor tente novamente.');
+    }
+
     setTasks([...tasks, newTask]);
     toast.success('Tarefa adIcionada com sucesso');
   };
@@ -67,7 +85,7 @@ const Tasks = () => {
     <div className="w-full space-y-6 px-8 py-16">
       <div className="flex w-full justify-between">
         <div>
-          <span className="text-xs font-semibold text-[#00adB5]">
+          <span className="text-xs font-semibold text-brand-primary">
             Minhas Tarefas
           </span>
           <h2 className="text-xl font-semibold">Minhas Tarefas</h2>
@@ -75,7 +93,7 @@ const Tasks = () => {
 
         <div className="flex items-center gap-3">
           <Button
-            variant={'primary'}
+            color={'primary'}
             onClick={() => setaddTaskDialogisOpen(true)}
           >
             Nova Tarefa <IconAdd />
@@ -87,7 +105,7 @@ const Tasks = () => {
             handleAddNewTask={handleAddNewTask}
           />
 
-          <Button variant={'secundary'}>
+          <Button color={'secondary'}>
             Limpar Tarefas <IconTrash />
           </Button>
         </div>
@@ -101,7 +119,7 @@ const Tasks = () => {
               key={task.id}
               task={task}
               handleCheckboxClick={handleCheckboxClick}
-              handleTaskDelete={handleTaskDelete}
+              onDeleteSucess={onDeleteSucess}
             />
           ))}
         </div>
@@ -112,7 +130,7 @@ const Tasks = () => {
               key={task.id}
               task={task}
               handleCheckboxClick={handleCheckboxClick}
-              handleTaskDelete={handleTaskDelete}
+              onDeleteSucess={onDeleteSucess}
             />
           ))}
         </div>
@@ -123,7 +141,7 @@ const Tasks = () => {
               key={task.id}
               task={task}
               handleCheckboxClick={handleCheckboxClick}
-              handleTaskDelete={handleTaskDelete}
+              onDeleteSucess={onDeleteSucess}
             />
           ))}
         </div>

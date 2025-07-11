@@ -1,16 +1,36 @@
+import { useState } from 'react';
 import { CheckIcon, LoaderIcon, DetailsIcon, IconTrash } from '../assets/icons';
 import Button from './Button';
+import PropTypes from 'prop-types';
+import { toast } from 'sonner';
 
-const TaskItem = ({ task, handleCheckboxClick, handleTaskDelete }) => {
+const TaskItem = ({ task, handleCheckboxClick, onDeleteSucess }) => {
+  const [deleteTaskIsLoading, setDeleteTaskIsLoading] = useState(false);
+
+  const handleDeleteClick = async (id) => {
+    setDeleteTaskIsLoading(true);
+    const response = await fetch(`http://localhost:3000/tasks/${id}`, {
+      method: 'DELETE',
+    });
+
+    if (!response.ok) {
+      setDeleteTaskIsLoading(false);
+      return toast.error('Erro ao deletar tarefa, por favor tente novamente!');
+    }
+
+    onDeleteSucess(id);
+    toast.success('Tarefa deletada com sucesso!');
+    setDeleteTaskIsLoading(false);
+  };
   const getStatusClasses = () => {
     if (task.status === 'done') {
-      return 'bg-[#00adb5]  text-[#00adb5]]';
+      return 'bg-brand-primary  text-brand-primary]';
     }
     if (task.status === 'in_progress') {
-      return 'bg-[#ffaa04]  text-[#ffaa04]]';
+      return 'bg-brand-process  text-brand-process]';
     }
     if (task.status === 'not_started') {
-      return 'bg-[#35383e] bg-opacity-10 text-[#35383e]]';
+      return 'bg-[#35383e] bg-opacity-10 text-brand-dark-blue';
     }
   };
 
@@ -30,15 +50,23 @@ const TaskItem = ({ task, handleCheckboxClick, handleTaskDelete }) => {
           />
           {task.status === 'done' && <CheckIcon />}
           {task.status === 'in_progress' && (
-            <LoaderIcon className="text-brand-white animate-spin" />
+            <LoaderIcon className="animate-spin text-brand-white" />
           )}
         </label>
         {task.title}
       </div>
 
       <div className="flex items-center gap-2">
-        <Button variant={'ghost'} onClick={() => handleTaskDelete(task.id)}>
-          <IconTrash className={'text-[#9a9c9f]'} />
+        <Button
+          color={'ghost'}
+          onClick={() => handleDeleteClick(task.id)}
+          disabled={deleteTaskIsLoading}
+        >
+          {deleteTaskIsLoading ? (
+            <LoaderIcon className="animate-spin text-brand-white" />
+          ) : (
+            <IconTrash className={'text-brand-text-gray'} />
+          )}
         </Button>
 
         <a href="#" className="hover:opacity-75">
@@ -47,6 +75,18 @@ const TaskItem = ({ task, handleCheckboxClick, handleTaskDelete }) => {
       </div>
     </div>
   );
+};
+
+TaskItem.propTypes = {
+  task: PropTypes.shape({
+    id: PropTypes.string.isRequired,
+    title: PropTypes.string.isRequired,
+    description: PropTypes.string.isRequired,
+    time: PropTypes.oneOf(['morning', 'afternoon', 'night']).isRequired,
+    status: PropTypes.oneOf(['not_started', 'in_progress', 'done']).isRequired,
+  }).isRequired,
+  handleCheckboxClick: PropTypes.func,
+  handleDeleteClick: PropTypes.func,
 };
 
 export default TaskItem;

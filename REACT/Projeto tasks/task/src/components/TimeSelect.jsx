@@ -1,5 +1,7 @@
 import { forwardRef } from 'react';
+import PropTypes from 'prop-types';
 import InputLabel from './InputLabel';
+import InputError from './InputError';
 
 const TimeSelect = forwardRef((props, ref) => {
   return (
@@ -7,7 +9,7 @@ const TimeSelect = forwardRef((props, ref) => {
       <InputLabel htmlFor={'time'}>Horário</InputLabel>
       <select
         id="time"
-        className="rounded-lg border border-solid border-[#ECECEC] px-4 py-3 outline-[#00ADB5] placeholder:text-sm placeholder:text-[#ECECEC]"
+        className="rounded-lg border border-solid border-[#ECECEC] px-4 py-3 outline-brand-primary placeholder:text-sm placeholder:text-[#ECECEC]"
         {...props}
         ref={ref}
       >
@@ -15,13 +17,15 @@ const TimeSelect = forwardRef((props, ref) => {
         <option value="afternoon">Tarde</option>
         <option value="night">Noite</option>
       </select>
-      {props.error && (
-        <p className="text-left text-xs text-red-500">{props.error.message}</p>
-      )}
+      {props.error && <InputError errorMessage={props.error.message} />}
     </div>
   );
 });
 
 TimeSelect.displayName = 'TimeSelect';
+
+TimeSelect.propTypes = {
+  errorMessage: PropTypes.string,
+};
 
 export default TimeSelect;

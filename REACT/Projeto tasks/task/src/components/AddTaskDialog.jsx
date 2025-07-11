@@ -1,4 +1,5 @@
 import { createPortal } from 'react-dom';
+import PropTypes from 'prop-types';
 import Input from './Input';
 import Button from './Button';
 import { CSSTransition } from 'react-transition-group';
@@ -78,8 +79,8 @@ const AddTaskDialog = ({ isOpen, handleClose, handleAddNewTask }) => {
             className="fixed bottom-0 left-0 top-0 flex h-screen w-screen items-center justify-center backdrop-blur"
           >
             <div className="rounded-xl bg-white p-5 text-center shadow">
-              <h2 className="text-[#35383e]">Nova Tarefa</h2>
-              <p className="mb-4 mt-1 text-sm text-[#9a9c9f]">
+              <h2 className="text-brand-dark-blue">Nova Tarefa</h2>
+              <p className="mb-4 mt-1 text-sm text-brand-text-gray">
                 Insira as informações abaixo
               </p>
 
@@ -104,7 +105,7 @@ const AddTaskDialog = ({ isOpen, handleClose, handleAddNewTask }) => {
 
                 <div className="flex gap-3">
                   <Button
-                    variant={'secundary'}
+                    color={'secondary'}
                     size="larger"
                     className="w-full text-center"
                     onClick={handleClose}
@@ -112,7 +113,7 @@ const AddTaskDialog = ({ isOpen, handleClose, handleAddNewTask }) => {
                     Cancelar
                   </Button>
                   <Button
-                    variant={'primary'}
+                    color={'primary'}
                     size="larger"
                     className="w-full text-center"
                     onClick={() => handleSubmit()}
@@ -128,6 +129,12 @@ const AddTaskDialog = ({ isOpen, handleClose, handleAddNewTask }) => {
       </div>
     </CSSTransition>
   );
+};
+
+AddTaskDialog.propTypes = {
+  isOpen: PropTypes.bool.isRequired,
+  handleClose: PropTypes.func,
+  handleSubmit: PropTypes.func,
 };
 
 export default AddTaskDialog;
