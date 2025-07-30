@@ -3,6 +3,7 @@ import { CheckIcon, LoaderIcon, DetailsIcon, IconTrash } from '../assets/icons';
 import Button from './Button';
 import PropTypes from 'prop-types';
 import { toast } from 'sonner';
+import { Link } from 'react-router-dom';
 
 const TaskItem = ({ task, handleCheckboxClick, onDeleteSucess }) => {
   const [deleteTaskIsLoading, setDeleteTaskIsLoading] = useState(false);
@@ -69,9 +70,13 @@ const TaskItem = ({ task, handleCheckboxClick, onDeleteSucess }) => {
           )}
         </Button>
 
-        <a href="#" className="hover:opacity-75">
+        <Link
+          to={`/task/${task.id}`}
+          color="ghost"
+          className="hover:opacity-75"
+        >
           <DetailsIcon />
-        </a>
+        </Link>
       </div>
     </div>
   );

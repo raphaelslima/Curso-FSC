@@ -16,14 +16,15 @@ const Tasks = () => {
   const [tasks, setTasks] = useState([]);
   const [addTaskDialogisOpen, setaddTaskDialogisOpen] = useState(false);
 
+  const fetchTasks = async () => {
+    const response = await fetch('http://localhost:3000/tasks', {
+      method: 'GET',
+    });
+    const data = await response.json();
+    setTasks(data);
+  };
+
   useEffect(() => {
-    const fetchTasks = async () => {
-      const response = await fetch('http://localhost:3000/tasks', {
-        method: 'GET',
-      });
-      const data = await response.json();
-      setTasks(data);
-    };
     fetchTasks();
   }, []);
 
@@ -67,17 +68,9 @@ const Tasks = () => {
     setaddTaskDialogisOpen(false);
   };
 
-  const handleAddNewTask = async (newTask) => {
-    const response = await fetch('http://localhost:3000/tasks', {
-      method: 'POST',
-      body: JSON.stringify(newTask),
-    });
-
-    if (!response.ok) {
-      return toast.error('Erro ao adiconar tarefa! Por favor tente novamente.');
-    }
-
+  const onSubmitSucess = async (newTask) => {
     setTasks([...tasks, newTask]);
+    fetchTasks();
     toast.success('Tarefa adIcionada com sucesso');
   };
 
@@ -102,7 +95,7 @@ const Tasks = () => {
           <AddTaskDialog
             isOpen={addTaskDialogisOpen}
             handleClose={handleAddTaskDialogClose}
-            handleAddNewTask={handleAddNewTask}
+            onSubmitSucess={onSubmitSucess}
           />
 
           <Button color={'secondary'}>

@@ -7,20 +7,22 @@ import { useEffect, useRef, useState } from 'react';
 import './addTaskDialog.css';
 import TimeSelect from './TimeSelect';
 import { v4 } from 'uuid';
+import { LoaderIcon } from '../assets/icons';
 
-const AddTaskDialog = ({ isOpen, handleClose, handleAddNewTask }) => {
+const AddTaskDialog = ({ isOpen, handleClose, onSubmitSucess }) => {
   const nodeRef = useRef();
   const titleRef = useRef();
   const descriptionRef = useRef();
   const timeRef = useRef();
   const [errors, setErrors] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (!isOpen) {
     }
   }, [isOpen]);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const newErrors = [];
 
     if (!titleRef.current.value.trim()) {
@@ -46,17 +48,33 @@ const AddTaskDialog = ({ isOpen, handleClose, handleAddNewTask }) => {
 
     setErrors(newErrors);
     if (newErrors.length > 0) {
-      return;
+      return setIsLoading(true);
     }
 
-    const newTask = {
+    const response = await fetch('http://localhost:3000/tasks', {
+      method: 'POST',
+      body: JSON.stringify({
+        id: v4(),
+        title: titleRef.current.value,
+        time: timeRef.current.value,
+        description: descriptionRef.current.value,
+        status: 'not_started',
+      }),
+    });
+
+    if (!response.ok) {
+      setIsLoading(false);
+      return toast.error('Erro ao adiconar tarefa! Por favor tente novamente.');
+    }
+
+    onSubmitSucess({
       id: v4(),
-      title: titleRef.current.value,
-      time: timeRef.current.value,
-      description: descriptionRef.current.value,
+      title,
+      time,
+      description,
       status: 'not_started',
-    };
-    handleAddNewTask(newTask);
+    });
+    setIsLoading(false);
     handleClose();
   };
   const errorTitle = errors.find((error) => error.inputName === 'title');
@@ -91,9 +109,14 @@ const AddTaskDialog = ({ isOpen, handleClose, handleAddNewTask }) => {
                   id="title"
                   error={errorTitle}
                   ref={titleRef}
+                  disabled={isLoading}
                 />
 
-                <TimeSelect error={errorTime} ref={timeRef} />
+                <TimeSelect
+                  error={errorTime}
+                  ref={timeRef}
+                  disabled={isLoading}
+                />
 
                 <Input
                   placeholder="Descreva a tarefa"
@@ -101,6 +124,7 @@ const AddTaskDialog = ({ isOpen, handleClose, handleAddNewTask }) => {
                   id="description"
                   ref={descriptionRef}
                   error={errorDescription}
+                  disabled={isLoading}
                 />
 
                 <div className="flex gap-3">
@@ -117,7 +141,9 @@ const AddTaskDialog = ({ isOpen, handleClose, handleAddNewTask }) => {
                     size="larger"
                     className="w-full text-center"
                     onClick={() => handleSubmit()}
+                    disabled={isLoading}
                   >
+                    {isLoading && <LoaderIcon className="animate-spin" />}
                     Salvar
                   </Button>
                 </div>
