@@ -107,6 +107,11 @@ const Tasks = () => {
       <div className="rounded-xl bg-white p-6">
         <div className="space-y-3">
           <TasksSeparator icon={<SunIcon />} title={'Manhã'} />
+          {morningTasks.length === 0 && (
+            <p className="text-sm text-brand-text-gray">
+              Nenhuma tarefa adicionada para o meríodo da manhã
+            </p>
+          )}
           {morningTasks.map((task) => (
             <TaskItem
               key={task.id}

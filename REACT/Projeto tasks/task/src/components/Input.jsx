@@ -12,7 +12,7 @@ const Input = forwardRef(({ label, error, ...rest }, ref) => {
         ref={ref}
         {...rest}
       />
-      {error && <InputError errorMessage={error.message} />}
+      {error && <InputError errorMessage={error} />}
     </div>
   );
 });
