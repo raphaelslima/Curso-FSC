@@ -10,8 +10,26 @@ import { v4 } from 'uuid';
 import { LoaderIcon } from '../assets/icons';
 import { toast } from 'sonner';
 import { useForm } from 'react-hook-form';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-const AddTaskDialog = ({ isOpen, handleClose, onSubmitSucess }) => {
+const AddTaskDialog = ({ isOpen, handleClose }) => {
+  const queryClient = useQueryClient();
+  const { mutate } = useMutation({
+    mutationKey: ['addTask'],
+    mutationFn: async (task) => {
+      const response = await fetch('http://localhost:3000/tasks', {
+        method: 'POST',
+        body: JSON.stringify(task),
+      });
+
+      if (!response.ok) {
+        throw new Error('Erro ao adicionar tarefa.');
+      }
+
+      return response.json();
+    },
+  });
+
   const nodeRef = useRef();
   const {
     register,
@@ -26,33 +44,32 @@ const AddTaskDialog = ({ isOpen, handleClose, onSubmitSucess }) => {
   }, [isOpen]);
 
   const handleSaveClick = async (data) => {
-    const response = await fetch('http://localhost:3000/tasks', {
-      method: 'POST',
-      body: JSON.stringify({
-        id: v4(),
-        title: data.title,
-        time: data.time,
-        description: data.description,
-        status: 'not_started',
-      }),
-    });
-
-    if (!response.ok) {
-      return toast.error('Erro ao adiconar tarefa! Por favor tente novamente.');
-    }
-
-    onSubmitSucess({
+    const task = {
       id: v4(),
       title: data.title,
       time: data.time,
       description: data.description,
       status: 'not_started',
-    });
-    handleClose();
-    reset({
-      title: '',
-      time: 'morning',
-      description: '',
+    };
+
+    mutate(task, {
+      onSuccess: () => {
+        queryClient.setQueriesData('tasks', (currentTasks) => {
+          return [...currentTasks, task];
+        });
+        handleClose();
+        reset({
+          title: '',
+          time: 'morning',
+          description: '',
+        });
+
+        return toast.success('Tarefa adicionada com sucesso');
+      },
+
+      onError: () => {
+        throw new Error('Erro ao adicionar tarefa.');
+      },
     });
   };
 

@@ -60,22 +60,8 @@ const Tasks = () => {
     });
   };
 
-  const onDeleteSucess = async (taskId) => {
-    queryClient.setQueriesData('tasks', (currentTasks) => {
-      return currentTasks.filter((task) => task.id !== taskId);
-    });
-    return toast.success('Tarefa deleta com sucesso!');
-  };
-
   const handleAddTaskDialogClose = () => {
     setaddTaskDialogisOpen(false);
-  };
-
-  const onSubmitSucess = async (task) => {
-    queryClient.setQueriesData('tasks', (currentTasks) => {
-      return [...currentTasks, task];
-    });
-    toast.success('Tarefa adicionada com sucesso');
   };
 
   return (
@@ -99,7 +85,6 @@ const Tasks = () => {
           <AddTaskDialog
             isOpen={addTaskDialogisOpen}
             handleClose={handleAddTaskDialogClose}
-            onSubmitSucess={onSubmitSucess}
           />
 
           <Button color={'secondary'}>
@@ -121,7 +106,6 @@ const Tasks = () => {
               key={task.id}
               task={task}
               handleCheckboxClick={handleCheckboxClick}
-              onDeleteSucess={onDeleteSucess}
             />
           ))}
         </div>
@@ -137,7 +121,6 @@ const Tasks = () => {
               key={task.id}
               task={task}
               handleCheckboxClick={handleCheckboxClick}
-              onDeleteSucess={onDeleteSucess}
             />
           ))}
         </div>
@@ -153,7 +136,6 @@ const Tasks = () => {
               key={task.id}
               task={task}
               handleCheckboxClick={handleCheckboxClick}
-              onDeleteSucess={onDeleteSucess}
             />
           ))}
         </div>
