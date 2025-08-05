@@ -12,72 +12,113 @@ import Input from '../components/Input';
 import TimeSelect from '../components/TimeSelect';
 import { toast } from 'sonner';
 import { useForm } from 'react-hook-form';
-import { v4 } from 'uuid';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 const TaskDetailPage = () => {
   const { taskId } = useParams();
-  const [task, setTask] = useState({});
   const navigate = useNavigate();
 
   const {
     register,
-    formState: { errors, isSubmitting },
+    formState: { errors },
     handleSubmit,
     reset,
   } = useForm();
 
+  const queryClient = useQueryClient();
+  const { data: task, isPending: updateTaskIsLoading } = useQuery({
+    queryKey: ['task', taskId],
+    queryFn: async () => {
+      const response = await fetch(`http://localhost:3000/tasks/${taskId}`, {
+        method: 'GET',
+      });
+
+      if (!response.ok) {
+        toast.error('Erro, tente novamanete!');
+      }
+
+      const dataTask = await response.json();
+
+      reset({
+        title: dataTask.title,
+        time: dataTask.time,
+        description: dataTask.description,
+      });
+    },
+  });
+
+  const { mutate: editMutate } = useMutation({
+    queryKey: ['editTask', taskId],
+    mutationFn: async (data) => {
+      const response = await fetch(`http://localhost:3000/tasks/${taskId}`, {
+        method: 'PATCH',
+        body: JSON.stringify({
+          title: data.title.trim(),
+          time: data.time,
+          description: data.description.trim(),
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error();
+      }
+
+      const newTask = await response.json();
+      queryClient.setQueryData(['editTask'], (oldTasks) => {
+        return oldTasks.map((oldTask) => {
+          if (oldTask.id === taskId) {
+            return newTask;
+          }
+          return oldTask;
+        });
+      });
+    },
+  });
+
   const handleSaveClick = async (data) => {
-    const response = await fetch(`http://localhost:3000/tasks/${taskId}`, {
-      method: 'PATCH',
-      body: JSON.stringify({
-        id: v4(),
-        title: data.title.trim(),
-        time: data.time,
-        description: data.description.trim(),
-      }),
+    editMutate(data, {
+      onSuccess: () => {
+        toast.success('Tarefa alterada com sucesso');
+        navigate(-1);
+      },
+      onError: () => {
+        toast.error('Erro ao alterar tarefa!');
+      },
     });
-
-    if (!response.ok) {
-      return toast.error('Erro ao adiconar tarefa! Por favor tente novamente.');
-    }
-
-    const newTask = await response.json();
-    setTask(newTask);
   };
 
+  const { mutate: deleteMutate, isPending: deleteTaskIsLoading } = useMutation({
+    queryKey: ['deleteTask', taskId],
+    mutationFn: async () => {
+      const response = await fetch(`http://localhost:3000/tasks/${taskId}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        return toast.error('Erro ao deletar tarefa');
+      }
+
+      queryClient.setQueryData(['tasks'], (oldTasks) => {
+        return oldTasks.filter((oldTask) => oldTask.id !== taskId);
+      });
+    },
+  });
+
   const handleDeleteClick = async () => {
-    const response = await fetch(`http://localhost:3000/tasks/${taskId}`, {
-      method: 'DELETE',
+    deleteMutate(undefined, {
+      onSuccess: () => {
+        toast.success('Tarefa deletada com sucesso');
+        navigate(-1);
+      },
+      onError: () => {
+        toast.error('Erro ao deletar tarefa!');
+      },
     });
-
-    if (!response.ok) {
-      return toast.error('Erro ao deletar tarefa');
-    }
-
-    toast.success('Tarefa deletada com sucesso');
-    navigate(-1);
   };
 
   const handleBackClick = () => {
     navigate(-1);
   };
-
-  useEffect(() => {
-    const fetchTask = async () => {
-      const response = await fetch(`http://localhost:3000/tasks/${taskId}`, {
-        method: 'GET',
-      });
-      const data = await response.json();
-      setTask(data);
-      reset({
-        title: data.title,
-        time: data.time,
-        description: data.description,
-      });
-    };
-
-    fetchTask();
-  }, [taskId, reset]);
 
   return (
     <div className="flex">
@@ -163,9 +204,9 @@ const TaskDetailPage = () => {
               size="larger"
               color="primary"
               type={'submit'}
-              disabled={isSubmitting}
+              disabled={updateTaskIsLoading}
             >
-              {isSubmitting && <LoaderIcon className={'animate-spin'} />}
+              {updateTaskIsLoading && <LoaderIcon className={'animate-spin'} />}
               Salvar
             </Button>
           </div>

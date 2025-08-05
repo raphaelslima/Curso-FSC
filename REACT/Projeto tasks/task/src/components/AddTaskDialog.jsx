@@ -23,7 +23,7 @@ const AddTaskDialog = ({ isOpen, handleClose }) => {
       });
 
       if (!response.ok) {
-        throw new Error('Erro ao adicionar tarefa.');
+        throw new Error();
       }
 
       return response.json();
@@ -53,10 +53,8 @@ const AddTaskDialog = ({ isOpen, handleClose }) => {
     };
 
     mutate(task, {
-      onSuccess: () => {
-        queryClient.setQueriesData('tasks', (currentTasks) => {
-          return [...currentTasks, task];
-        });
+      onSuccess: async () => {
+        await queryClient.invalidateQueries({ queryKey: ['tasks'] });
         handleClose();
         reset({
           title: '',
@@ -64,7 +62,7 @@ const AddTaskDialog = ({ isOpen, handleClose }) => {
           description: '',
         });
 
-        return toast.success('Tarefa adicionada com sucesso');
+        toast.success('Alterado com sucesso!');
       },
 
       onError: () => {
