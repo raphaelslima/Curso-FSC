@@ -11,20 +11,12 @@ import AddTaskDialog from './AddTaskDialog';
 import { useState } from 'react';
 import TaskItem from './TaskItem';
 import { toast } from 'sonner';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
+import { useGetTasks } from '../hooks/data/useGetTasks';
 
 const Tasks = () => {
   const queryClient = useQueryClient();
-  const { data: tasks } = useQuery({
-    queryKey: ['tasks'],
-    queryFn: async () => {
-      const response = await fetch('http://localhost:3000/tasks', {
-        method: 'GET',
-      });
-      const tasks = await response.json();
-      return tasks;
-    },
-  });
+  const { data: tasks } = useGetTasks();
 
   const [addTaskDialogisOpen, setaddTaskDialogisOpen] = useState(false);
 

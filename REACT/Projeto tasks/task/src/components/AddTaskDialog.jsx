@@ -10,25 +10,10 @@ import { v4 } from 'uuid';
 import { LoaderIcon } from '../assets/icons';
 import { toast } from 'sonner';
 import { useForm } from 'react-hook-form';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useAddTask } from '../hooks/data/useAddTask';
 
 const AddTaskDialog = ({ isOpen, handleClose }) => {
-  const queryClient = useQueryClient();
-  const { mutate } = useMutation({
-    mutationKey: ['addTask'],
-    mutationFn: async (task) => {
-      const response = await fetch('http://localhost:3000/tasks', {
-        method: 'POST',
-        body: JSON.stringify(task),
-      });
-
-      if (!response.ok) {
-        throw new Error();
-      }
-
-      return response.json();
-    },
-  });
+  const { mutate } = useAddTask();
 
   const nodeRef = useRef();
   const {
@@ -53,8 +38,7 @@ const AddTaskDialog = ({ isOpen, handleClose }) => {
     };
 
     mutate(task, {
-      onSuccess: async () => {
-        await queryClient.invalidateQueries({ queryKey: ['tasks'] });
+      onSuccess: () => {
         handleClose();
         reset({
           title: '',

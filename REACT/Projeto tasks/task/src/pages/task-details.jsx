@@ -12,7 +12,9 @@ import Input from '../components/Input';
 import TimeSelect from '../components/TimeSelect';
 import { toast } from 'sonner';
 import { useForm } from 'react-hook-form';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useGetTask } from '../hooks/data/useGettask';
+import { useEditTask } from '../hooks/data/useEditTask';
+import { useDeleteTask } from '../hooks/data/useDeleteTask';
 
 const TaskDetailPage = () => {
   const { taskId } = useParams();
@@ -25,57 +27,14 @@ const TaskDetailPage = () => {
     reset,
   } = useForm();
 
-  const queryClient = useQueryClient();
-  const { data: task, isPending: updateTaskIsLoading } = useQuery({
-    queryKey: ['task', taskId],
-    queryFn: async () => {
-      const response = await fetch(`http://localhost:3000/tasks/${taskId}`, {
-        method: 'GET',
-      });
+  const { data: task, isPending: updateTaskIsLoading } = useGetTask(
+    taskId,
+    (task) => reset(task)
+  );
 
-      if (!response.ok) {
-        toast.error('Erro, tente novamanete!');
-      }
+  const { mutate: editMutate } = useEditTask(taskId);
 
-      const dataTask = await response.json();
-
-      reset({
-        title: dataTask.title,
-        time: dataTask.time,
-        description: dataTask.description,
-      });
-    },
-  });
-
-  const { mutate: editMutate } = useMutation({
-    queryKey: ['editTask', taskId],
-    mutationFn: async (data) => {
-      const response = await fetch(`http://localhost:3000/tasks/${taskId}`, {
-        method: 'PATCH',
-        body: JSON.stringify({
-          title: data.title.trim(),
-          time: data.time,
-          description: data.description.trim(),
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error();
-      }
-
-      const newTask = await response.json();
-      queryClient.setQueryData(['editTask'], (oldTasks) => {
-        return oldTasks.map((oldTask) => {
-          if (oldTask.id === taskId) {
-            return newTask;
-          }
-          return oldTask;
-        });
-      });
-    },
-  });
-
-  const handleSaveClick = async (data) => {
+  const handleSaveClick = (data) => {
     editMutate(data, {
       onSuccess: () => {
         toast.success('Tarefa alterada com sucesso');
@@ -87,22 +46,7 @@ const TaskDetailPage = () => {
     });
   };
 
-  const { mutate: deleteMutate, isPending: deleteTaskIsLoading } = useMutation({
-    queryKey: ['deleteTask', taskId],
-    mutationFn: async () => {
-      const response = await fetch(`http://localhost:3000/tasks/${taskId}`, {
-        method: 'DELETE',
-      });
-
-      if (!response.ok) {
-        return toast.error('Erro ao deletar tarefa');
-      }
-
-      queryClient.setQueryData(['tasks'], (oldTasks) => {
-        return oldTasks.filter((oldTask) => oldTask.id !== taskId);
-      });
-    },
-  });
+  const { mutate: deleteMutate } = useDeleteTask(taskId);
 
   const handleDeleteClick = async () => {
     deleteMutate(undefined, {
