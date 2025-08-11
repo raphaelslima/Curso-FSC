@@ -4,7 +4,7 @@ import TextItem from '../assets/icons/tasks.svg?react';
 
 const Sidebar = () => {
   return (
-    <div className="h-screen w-72 bg-white">
+    <div className="h-screen w-72 min-w-72 bg-white">
       <div className="space-y-4 px-8 py-6">
         <h1 className="text-xl font-semibold text-[#00ad85]">Task Manager</h1>
         <p>
@@ -14,11 +14,11 @@ const Sidebar = () => {
       </div>
 
       <div className="flex flex-col gap-2 p-2">
-        <SidebarButton color="unselected">
+        <SidebarButton to={'/'}>
           <HomeIcon />
           Início
         </SidebarButton>
-        <SidebarButton color="selected">
+        <SidebarButton to={'/tasks'}>
           <TextItem />
           Minhas Tarefas
         </SidebarButton>
