@@ -46,7 +46,7 @@ const AddTaskDialog = ({ isOpen, handleClose }) => {
           description: '',
         });
 
-        toast.success('Alterado com sucesso!');
+        toast.success('Criado com sucesso!');
       },
 
       onError: () => {

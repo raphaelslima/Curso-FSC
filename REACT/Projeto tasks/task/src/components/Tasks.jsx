@@ -13,12 +13,12 @@ import TaskItem from './TaskItem';
 import { toast } from 'sonner';
 import { useQueryClient } from '@tanstack/react-query';
 import { useGetTasks } from '../hooks/data/useGetTasks';
+import Header from './Header';
+import { taskQueryKeys } from '../keys/queries';
 
 const Tasks = () => {
   const queryClient = useQueryClient();
   const { data: tasks } = useGetTasks();
-
-  const [addTaskDialogisOpen, setaddTaskDialogisOpen] = useState(false);
 
   const morningTasks = tasks?.filter((task) => task.time === 'morning');
   const afternonTasks = tasks?.filter((task) => task.time === 'afternoon');
@@ -47,43 +47,14 @@ const Tasks = () => {
 
       return task;
     });
-    queryClient.setQueryData('tasks', () => {
+    queryClient.setQueryData(taskQueryKeys.getAll(), () => {
       return newTasks;
     });
   };
 
-  const handleAddTaskDialogClose = () => {
-    setaddTaskDialogisOpen(false);
-  };
-
   return (
     <div className="w-full space-y-6 px-8 py-16">
-      <div className="flex w-full justify-between">
-        <div>
-          <span className="text-xs font-semibold text-brand-primary">
-            Minhas Tarefas
-          </span>
-          <h2 className="text-xl font-semibold">Minhas Tarefas</h2>
-        </div>
-
-        <div className="flex items-center gap-3">
-          <Button
-            color={'primary'}
-            onClick={() => setaddTaskDialogisOpen(true)}
-          >
-            Nova Tarefa <IconAdd />
-          </Button>
-
-          <AddTaskDialog
-            isOpen={addTaskDialogisOpen}
-            handleClose={handleAddTaskDialogClose}
-          />
-
-          <Button color={'secondary'}>
-            Limpar Tarefas <IconTrash />
-          </Button>
-        </div>
-      </div>
+      <Header title={'Minhas Tarefas'} subtile={'Minhas Tarefas'} />
 
       <div className="rounded-xl bg-white p-6">
         <div className="space-y-3">
