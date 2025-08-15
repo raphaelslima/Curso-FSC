@@ -1,56 +1,17 @@
-import Button from './Button';
-import {
-  IconAdd,
-  IconTrash,
-  SunIcon,
-  CloudIcon,
-  MoonIcon,
-} from '../assets/icons';
+import { SunIcon, CloudIcon, MoonIcon } from '../assets/icons';
 import TasksSeparator from './TasksSeparator';
-import AddTaskDialog from './AddTaskDialog';
-import { useState } from 'react';
+
 import TaskItem from './TaskItem';
-import { toast } from 'sonner';
-import { useQueryClient } from '@tanstack/react-query';
+
 import { useGetTasks } from '../hooks/data/useGetTasks';
 import Header from './Header';
-import { taskQueryKeys } from '../keys/queries';
 
 const Tasks = () => {
-  const queryClient = useQueryClient();
   const { data: tasks } = useGetTasks();
 
   const morningTasks = tasks?.filter((task) => task.time === 'morning');
   const afternonTasks = tasks?.filter((task) => task.time === 'afternoon');
   const nightTasks = tasks?.filter((task) => task.time === 'night');
-
-  const handleCheckboxClick = (taskId) => {
-    const newTasks = tasks.map((task) => {
-      if (task.id !== taskId) {
-        return task;
-      }
-
-      if (task.status === 'not_started') {
-        toast.success('Tarefa iniciada com sucesso!');
-        return { ...task, status: 'in_progress' };
-      }
-
-      if (task.status === 'in_progress') {
-        toast.success('Tarefa finalizada com sucesso!');
-        return { ...task, status: 'done' };
-      }
-
-      if (task.status === 'done') {
-        toast.success('Tarefa reiniciada com sucesso!');
-        return { ...task, status: 'not_started' };
-      }
-
-      return task;
-    });
-    queryClient.setQueryData(taskQueryKeys.getAll(), () => {
-      return newTasks;
-    });
-  };
 
   return (
     <div className="w-full space-y-6 px-8 py-16">
@@ -65,11 +26,7 @@ const Tasks = () => {
             </p>
           )}
           {morningTasks?.map((task) => (
-            <TaskItem
-              key={task.id}
-              task={task}
-              handleCheckboxClick={handleCheckboxClick}
-            />
+            <TaskItem key={task.id} task={task} />
           ))}
         </div>
         <div className="my-6 space-y-3">
@@ -80,11 +37,7 @@ const Tasks = () => {
             </p>
           )}
           {afternonTasks?.map((task) => (
-            <TaskItem
-              key={task.id}
-              task={task}
-              handleCheckboxClick={handleCheckboxClick}
-            />
+            <TaskItem key={task.id} task={task} />
           ))}
         </div>
         <div className="space-y-3">
@@ -95,11 +48,7 @@ const Tasks = () => {
             </p>
           )}
           {nightTasks?.map((task) => (
-            <TaskItem
-              key={task.id}
-              task={task}
-              handleCheckboxClick={handleCheckboxClick}
-            />
+            <TaskItem key={task.id} task={task} />
           ))}
         </div>
       </div>

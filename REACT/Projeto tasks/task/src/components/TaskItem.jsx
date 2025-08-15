@@ -4,9 +4,11 @@ import PropTypes from 'prop-types';
 import { toast } from 'sonner';
 import { Link } from 'react-router-dom';
 import { useDeleteTask } from '../hooks/data/useDeleteTask';
+import { useEditTask } from '../hooks/data/useEditTask';
 
-const TaskItem = ({ task, handleCheckboxClick }) => {
+const TaskItem = ({ task }) => {
   const { mutate, isPending } = useDeleteTask(task.id);
+  const { mutate: editTask } = useEditTask(task.id);
 
   const handleDeleteClick = async () => {
     mutate(undefined, {
@@ -18,6 +20,7 @@ const TaskItem = ({ task, handleCheckboxClick }) => {
       },
     });
   };
+
   const getStatusClasses = () => {
     if (task.status === 'done') {
       return 'bg-brand-primary  text-brand-primary]';
@@ -28,6 +31,30 @@ const TaskItem = ({ task, handleCheckboxClick }) => {
     if (task.status === 'not_started') {
       return 'bg-[#35383e] bg-opacity-10 text-brand-dark-blue';
     }
+  };
+
+  const handleCheckboxClick = () => {
+    let status;
+    if (task.status === 'not_started') {
+      status = 'in_progress';
+    } else if (task.status === 'in_progress') {
+      status = 'done';
+    } else {
+      status = 'not_started';
+    }
+    editTask(
+      {
+        status,
+      },
+      {
+        onSuccess: () => {
+          toast.success('Tarefa editada com sucesso');
+        },
+        onError: () => {
+          toast.error('Erro ao editar tarefa!');
+        },
+      }
+    );
   };
 
   return (
@@ -42,7 +69,7 @@ const TaskItem = ({ task, handleCheckboxClick }) => {
             type="checkbox"
             checked={task.status === 'done'}
             className="absolute h-full w-full cursor-pointer opacity-0"
-            onChange={() => handleCheckboxClick(task.id)}
+            onChange={() => handleCheckboxClick()}
           />
           {task.status === 'done' && <CheckIcon />}
           {task.status === 'in_progress' && (
